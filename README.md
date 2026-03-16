@@ -1,62 +1,82 @@
-# Air Quality in Beijing 
+# Air Quality Forecasting with Machine Learning and LSTM
 
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/przemekwarnel/air-quality-rnn/blob/main/notebooks/air_quality_rnn.ipynb)
+## Project Overview 
 
-## Overview 
+This project builds and evaluates machine learning models for **multi-step time series forecasting of air pollution levels**.
 
-This project aims to build a recurrent neural network (RNN) for predicting PM2.5 air pollution levels in Beijing using time-series analysis. The work was completed as part of post-graduate studies at the Polish-Japanese Academy of Information Technology (PJAIT).
+Using historical air quality and meteorological data, the goal is to predict **PM2.5 concentration for the next 24 hours** based on the previous 48 hours of observations.
 
-## Dataset 
+The project compares:
 
-The project is based on measurements from the Wanshouxigong meteorological station in Beijing, collected hourly from 2013-03-01 to 2017-02-28.
+- naive time-series baselines
+- regularized linear regression (Ridge)
+- a deep learning model based on **LSTM**
 
-During exploratory analysis, missing values for each variable were inspected. The gaps were filled via interpolation, and missing values in the PM2.5 target variable were removed. Descriptive statistics, histograms, box plots, and distribution analyses were performed, with particular attention to outliers.
+All models are evaluated using **multi-horizon forecasting metrics** and compared across forecast horizons.
 
-A correlation matrix was generated to examine relationships between variables and the target. Three variables (PRES, DEWP, RAIN) showed negligible correlation and were removed from the dataset.
+The repository demonstrates a full **Applied ML workflow for time-series forecasting**, including:
 
-After preprocessing, the dataset was split into features and target, standardized using two separate StandardScaler instances, and then divided into training and test sets (90:10) without shuffling. Using the TimeSeriesGenerator, batches were created with a window size of 24 and initial batch size of 64.
+- data preprocessing
+- feature scaling
+- sliding window dataset construction
+- baseline modelling
+- neural network training
+- horizon-wise evaluation
+- visualization of forecast performance
 
-## Model 
+## Dataset
 
-A sequential RNN model built with stacked LSTM layers:
+The project uses an air quality dataset containing hourly observations of pollution and meteorological variables.
 
-model = Sequential([
-    LSTM(128, return_sequences=True, input_shape=(n_window, n_features)),
-    Dropout(0.2),
-    LSTM(32, return_sequences=True),
-    Dropout(0.2),
-    LSTM(8),
-    Dropout(0.2),
-    Dense(1, activation='linear')
-])
+The dataset includes measurements such as:
 
-The model was compiled using the Adam and RMSProp optimizers - the choice between either of them showed no substantial difference. MSE and the R² score were chosen as loss function and performance metric respectively. The model was trained using EarlyStopping and dropout was added after each LSTM layer to prevent overfitting. 
+- PM2.5 concentration (target variable)
+- temperature
+- pressure
+- dew point
+- wind speed
+- precipitation
+- other atmospheric indicators
 
-## Results 
+Each row corresponds to **one hour of observations**.
 
-The model achieves an R² value of 0.92 for the test set. This indicates that the model has good predictive ability and accounts for seasonal and short-term patterns. It is confirmed by the graph, where the predicted values ​​mostly match or are close to the actual values. The exception are outlier observations, which the model, striving to find more generalized patterns of feature behavior, struggles with. Increasing model depth with more LSTM layers did not result in improved performance.
+The dataset is included in the repository under:
 
-In summary, the created recurrent neural network model can be used to make fairly accurate predictions of future air pollution levels.
+[`data/raw/PRSA_Data_Wanshouxigong_20130301-20170228.csv`](data/raw/PRSA_Data_Wanshouxigong_20130301-20170228.csv)
 
-![True vs. Predicted PM2.5 for test subset](results/PM2.5_true_vs_predicted.png)
+### Target
 
-## Tech Stack 
+The forecasting target is:
 
-- Python 3.10 
-- NumPy, Pandas, Scikit-learn
-- TensorFlow / Keras
-- Matplotlib, Seaborn
+```
+PM2.5 concentration
+```
 
-## Setup 
+### Forecasting task
 
-### 1. Clone the repository 
-git clone https://github.com/przemekwarnel/air-quality-rnn.git
-### 2. Install dependencies 
-pip install -r requirements.txt
-### 3. Run the notebook 
-jupyter notebook air_quality_rnn.ipynb
+The models predict **24 future hourly values** of PM2.5 based on the **previous 48 hours of data**.
 
-## Author
+```
+Input window: 48 hours
+Forecast horizon: 24 hours
+```
 
-Przemysław Warnel 
-przemekwarnel@gmail.com
+## Problem Formulation
+
+The forecasting task is formulated as a **multi-step time series regression problem**.
+
+For each training example:
+```
+X = past 48 hours of observations
+y = next 24 hours of PM2.5 values
+```
+
+The dataset is converted into supervised learning samples using a **sliding window approach**.
+
+
+Evaluation is performed using a **chronological train / validation / test split** to avoid data leakage.
+
+Metrics are computed for:
+
+- the entire forecast horizon
+- each individual forecast step
