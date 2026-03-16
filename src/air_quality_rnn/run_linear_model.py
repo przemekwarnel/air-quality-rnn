@@ -6,14 +6,14 @@ import numpy as np
 from sklearn.linear_model import Ridge
 from sklearn.multioutput import MultiOutputRegressor
 
-from air_quality_rnn.datasets import create_datasets
+from air_quality_rnn.datasets import load_data, create_datasets
 from air_quality_rnn.evaluate import evaluate_forecast
 from air_quality_rnn.config import load_config
 from air_quality_rnn.utils import flatten_windows, convert_numpy, round_metrics, inverse_scale_targets
 from air_quality_rnn.visualization import plot_forecast_example
 
 
-def main():
+def main() -> None:
     """Train and evaluate a Ridge regression forecasting model."""
 
     # Load config and config parameters
@@ -31,17 +31,10 @@ def main():
     horizon = config["forecast"]["horizon"]
 
     # Load dataset 
-    df = pd.read_csv(
-        data_path,
-        usecols=lambda column: column not in ['No', 'wd', 'station']
-    )
-
-    df['Date'] = pd.to_datetime(df[['year', 'month', 'day', 'hour']])
-    df.set_index('Date', inplace=True)
-    df.drop(columns=['year', 'month', 'day', 'hour'], inplace=True)
+    df = load_data(data_path)
 
     # Create datasets
-    X_train, y_train, X_val, y_val, X_test, y_test, _feature_scaler, target_scaler = create_datasets(
+    X_train, y_train, X_val, y_val, X_test, y_test, _, target_scaler = create_datasets(
         df=df,
         train_size=train_size,
         val_size=val_size,
@@ -56,7 +49,7 @@ def main():
     X_val_flat = flatten_windows(X_val)
     X_test_flat = flatten_windows(X_test)
 
-    # 
+    # Prepare true target values for evaluation 
     y_val_true = inverse_scale_targets(y_val, target_scaler)
     y_test_true = inverse_scale_targets(y_test, target_scaler)
 
@@ -105,14 +98,14 @@ def main():
     # Save results 
     results = {
         "best_alpha": best_alpha,
-        "validation_metrics": convert_numpy(round_metrics(best_metrics)),
-        "test_metrics": convert_numpy(round_metrics(test_metrics)),
+        "validation_metrics": convert_numpy(best_metrics),
+        "test_metrics": convert_numpy(test_metrics),
     }
 
     Path("reports").mkdir(parents=True, exist_ok=True)
     Path("reports/figures").mkdir(parents=True, exist_ok=True)
 
-    with open("reports/linear_model.json", "w", encoding="utf-8") as f:
+    with open("reports/ridge_metrics.json", "w", encoding="utf-8") as f:
         json.dump(results, f, indent=4)
     
     # Generate and save example forecast plot
@@ -122,7 +115,7 @@ def main():
         y_true=y_test_true,
         y_pred=y_test_pred_inv,
         sample_idx=sample_idx,
-        save_path="reports/figures/forecast_example.png",
+        save_path="reports/figures/ridge_forecast.png",
     )
 
 

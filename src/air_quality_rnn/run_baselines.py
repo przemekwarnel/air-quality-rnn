@@ -1,16 +1,15 @@
 import pandas as pd
 import json
-import numpy as np
 from pathlib import Path
 
 from air_quality_rnn.config import load_config
-from air_quality_rnn.datasets import create_datasets
+from air_quality_rnn.datasets import load_data, create_datasets
 from air_quality_rnn.baselines import naive_forecast, seasonal_naive_forecast 
 from air_quality_rnn.evaluate import evaluate_forecast
 from air_quality_rnn.utils import convert_numpy, round_metrics, inverse_scale_targets
 
 
-def main():
+def main() -> None:
     """Run baseline forecasts and evaluate them. Save results to reports/baselines.json."""
 
     # Load config and config parameters
@@ -28,17 +27,10 @@ def main():
     horizon = config["forecast"]["horizon"]
 
     # Load dataset 
-    df = pd.read_csv(
-        data_path,
-        usecols=lambda column: column not in ['No', 'wd', 'station']
-    )
-
-    df['Date'] = pd.to_datetime(df[['year', 'month', 'day', 'hour']])
-    df.set_index('Date', inplace=True)
-    df.drop(columns=['year', 'month', 'day', 'hour'], inplace=True)
+    df = load_data(data_path)
 
     # Create datasets
-    X_train, y_train, X_val, y_val, X_test, y_test, _feature_scaler, target_scaler = create_datasets(
+    _, _, _, _, X_test, y_test, _, target_scaler = create_datasets(
         df=df,
         train_size=train_size,
         val_size=val_size,
@@ -82,11 +74,11 @@ def main():
     Path("reports").mkdir(exist_ok=True)
 
     results = {
-        "naive": convert_numpy(round_metrics(naive_metrics)),
-        "seasonal_naive": convert_numpy(round_metrics(seasonal_naive_metrics)),
+        "naive": convert_numpy(naive_metrics),
+        "seasonal_naive": convert_numpy(seasonal_naive_metrics),
     }
 
-    with open("reports/baselines.json", "w", encoding="utf-8") as f:
+    with open("reports/baselines_metrics.json", "w", encoding="utf-8") as f:
         json.dump(results, f, indent=4)
 
 

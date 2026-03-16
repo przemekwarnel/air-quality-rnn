@@ -7,6 +7,20 @@ from air_quality_rnn.utils import scale_targets
 from air_quality_rnn.preprocessing import preprocess_splits, chronological_split
 
 
+def load_data(data_path: str) -> pd.DataFrame:
+    """Load air quality dataset from CSV file."""
+    df = pd.read_csv(
+        data_path,
+        usecols=lambda column: column not in ['No', 'wd', 'station']
+    )
+
+    df['Date'] = pd.to_datetime(df[['year', 'month', 'day', 'hour']])
+    df.set_index('Date', inplace=True)
+    df.drop(columns=['year', 'month', 'day', 'hour'], inplace=True)
+
+    return df
+
+
 def create_sliding_windows(
     X_df: pd.DataFrame,
     y_series: pd.Series,
