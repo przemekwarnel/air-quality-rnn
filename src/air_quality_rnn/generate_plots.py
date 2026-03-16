@@ -1,36 +1,51 @@
+import argparse
 import json
 from pathlib import Path
 
 from air_quality_rnn.visualization import plot_mae_per_horizon, plot_r2_per_horizon
 
 
-def main():
-    """Generate MAE and R² horizon plots comparing naive baseline and Ridge model."""
+def load_json(path: str) -> dict:
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-    # Load results 
-    with open("reports/baselines.json", "r", encoding="utf-8") as f:
-        baselines_results = json.load(f)
 
-    with open("reports/linear_model.json", "r", encoding="utf-8") as f:
-        linear_model_results = json.load(f)
+def main() -> None:
+    """Generate horizon plots for baseline, Ridge, and optionally LSTM."""
 
-    # Select appropriate metrics 
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--lstm-experiment",
+        default=None,
+        help="Optional LSTM experiment name, e.g. lstm_baseline",
+    )
+    args = parser.parse_args()
+
+    baselines_results = load_json("reports/baselines_metrics.json")
+    ridge_results = load_json("reports/ridge_metrics.json")
+
     naive_metrics = baselines_results["naive"]
-    ridge_metrics = linear_model_results["test_metrics"]
+    ridge_metrics = ridge_results["test_metrics"]
 
-    # Create figures directory 
+    lstm_metrics = None
+    if args.lstm_experiment is not None:
+        lstm_path = f"reports/experiments/{args.lstm_experiment}.json"
+        lstm_results = load_json(lstm_path)
+        lstm_metrics = lstm_results["test_metrics"]
+
     Path("reports/figures").mkdir(parents=True, exist_ok=True)
 
-    # Generate and save plots
     plot_mae_per_horizon(
         naive_metrics=naive_metrics,
         ridge_metrics=ridge_metrics,
+        lstm_metrics=lstm_metrics,
         save_path="reports/figures/mae_per_horizon.png",
     )
 
     plot_r2_per_horizon(
         naive_metrics=naive_metrics,
         ridge_metrics=ridge_metrics,
+        lstm_metrics=lstm_metrics,
         save_path="reports/figures/r2_per_horizon.png",
     )
 
