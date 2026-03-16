@@ -1,0 +1,32 @@
+data:
+  path: data/raw/PRSA_Data_Wanshouxigong_20130301-20170228.csv
+
+split:
+  train_size: 0.7
+  val_size: 0.15
+
+features:
+  target_column: PM2.5
+  feature_columns:
+    - PM2.5
+    - PM10
+    - SO2
+    - NO2
+    - CO
+    - O3
+    - TEMP
+    - PRES
+    - DEWP
+    - RAIN
+    - WSPM
+
+forecast:
+  window_size: 48
+  horizon: 24
+
+model:
+  lstm_units: 64
+  learning_rate: 0.001
+  batch_size: 32
+  epochs: 30
+  patience: 5
