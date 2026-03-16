@@ -7,12 +7,13 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.callbacks import EarlyStopping
 
-from air_quality_rnn.config import load_config
-from air_quality_rnn.datasets import load_data, create_datasets
-from air_quality_rnn.models import build_lstm_model
-from air_quality_rnn.evaluate import evaluate_forecast
-from air_quality_rnn.utils import inverse_scale_targets, convert_numpy, round_metrics
-from air_quality_rnn.visualization import plot_forecast_example, plot_training_history
+from air_quality_forecasting.config import load_config
+from air_quality_forecasting.datasets import load_data, create_datasets
+from air_quality_forecasting.models import build_lstm_model
+from air_quality_forecasting.evaluate import evaluate_forecast
+from air_quality_forecasting.utils import inverse_scale_targets, convert_numpy, round_metrics
+from air_quality_forecasting.visualization import plot_forecast_example, plot_training_history
+
 
 def set_seed(seed: int) -> None:
     random.seed(seed)

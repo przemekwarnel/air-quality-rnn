@@ -2,11 +2,11 @@ import pandas as pd
 import json
 from pathlib import Path
 
-from air_quality_rnn.config import load_config
-from air_quality_rnn.datasets import load_data, create_datasets
-from air_quality_rnn.baselines import naive_forecast, seasonal_naive_forecast 
-from air_quality_rnn.evaluate import evaluate_forecast
-from air_quality_rnn.utils import convert_numpy, round_metrics, inverse_scale_targets
+from air_quality_forecasting.config import load_config
+from air_quality_forecasting.datasets import load_data, create_datasets
+from air_quality_forecasting.baselines import naive_forecast, seasonal_naive_forecast 
+from air_quality_forecasting.evaluate import evaluate_forecast
+from air_quality_forecasting.utils import convert_numpy, round_metrics, inverse_scale_targets
 
 
 def main() -> None:

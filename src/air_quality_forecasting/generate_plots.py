@@ -2,7 +2,7 @@ import argparse
 import json
 from pathlib import Path
 
-from air_quality_rnn.visualization import plot_mae_per_horizon, plot_r2_per_horizon
+from air_quality_forecasting.visualization import plot_mae_per_horizon, plot_r2_per_horizon
 
 
 def load_json(path: str) -> dict:

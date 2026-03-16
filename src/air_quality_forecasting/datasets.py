@@ -3,8 +3,8 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from typing import List, Tuple
 
-from air_quality_rnn.utils import scale_targets
-from air_quality_rnn.preprocessing import preprocess_splits, chronological_split
+from air_quality_forecasting.utils import scale_targets
+from air_quality_forecasting.preprocessing import preprocess_splits, chronological_split
 
 
 def load_data(data_path: str) -> pd.DataFrame:

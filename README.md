@@ -83,7 +83,7 @@ Metrics are computed for:
 
 ## Project Structure
 ```
-air-quality-rnn
+air-quality-forecasting
 │
 ├── configs
 │   ├── base.yaml                 # default configuration
@@ -106,7 +106,7 @@ air-quality-rnn
 │   └── ridge_metrics.json
 │
 ├── src
-│   └── air_quality_rnn
+│   └── air_quality_forecasting
 │       ├── baselines.py          # naive forecasting baselines
 │       ├── config.py             # config loading utilities
 │       ├── datasets.py           # dataset creation and splits

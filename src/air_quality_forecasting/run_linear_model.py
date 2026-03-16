@@ -6,11 +6,11 @@ import numpy as np
 from sklearn.linear_model import Ridge
 from sklearn.multioutput import MultiOutputRegressor
 
-from air_quality_rnn.datasets import load_data, create_datasets
-from air_quality_rnn.evaluate import evaluate_forecast
-from air_quality_rnn.config import load_config
-from air_quality_rnn.utils import flatten_windows, convert_numpy, round_metrics, inverse_scale_targets
-from air_quality_rnn.visualization import plot_forecast_example
+from air_quality_forecasting.datasets import load_data, create_datasets
+from air_quality_forecasting.evaluate import evaluate_forecast
+from air_quality_forecasting.config import load_config
+from air_quality_forecasting.utils import flatten_windows, convert_numpy, round_metrics, inverse_scale_targets
+from air_quality_forecasting.visualization import plot_forecast_example
 
 
 def main() -> None:
