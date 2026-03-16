@@ -37,6 +37,9 @@ def preprocess_splits(
     pd.DataFrame,
     pd.DataFrame,
     pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
     StandardScaler,
     StandardScaler,
 ]:
@@ -59,25 +62,30 @@ def preprocess_splits(
             raise ValueError(f"feature_column '{col}' must be present in all DataFrames")
 
     # Fill missing values with forward fill, then backward fill as a fallback
-    train_df = train_df.ffill().bfill()
-    val_df = val_df.ffill().bfill()
-    test_df = test_df.ffill().bfill()
+    train_imputed = train_df.ffill().bfill()
+    val_imputed = val_df.ffill().bfill()
+    test_imputed = test_df.ffill().bfill()
 
     # Check for remaining missing values
-    if train_df.isnull().any().any() or val_df.isnull().any().any() or test_df.isnull().any().any():
+    if train_imputed.isnull().any().any() or val_imputed.isnull().any().any() or test_imputed.isnull().any().any():
         raise ValueError("DataFrames contain missing values after filling. Please check the data.")
     
-    # Scale features and target using StandardScaler
+    # Prepare datasets for scaling 
+    train_scaled = train_imputed.copy()
+    val_scaled = val_imputed.copy()
+    test_scaled = test_imputed.copy()
+
+    # Instantiate scalers
     feature_scaler = StandardScaler()
     target_scaler = StandardScaler()
 
     # Fit scalers on training data only
-    feature_scaler.fit(train_df[feature_columns])
-    target_scaler.fit(train_df[[target_column]])
+    feature_scaler.fit(train_scaled[feature_columns].to_numpy())
+    target_scaler.fit(train_imputed[[target_column]].to_numpy())
 
     # Transform features
-    train_df[feature_columns] = feature_scaler.transform(train_df[feature_columns])
-    val_df[feature_columns] = feature_scaler.transform(val_df[feature_columns])
-    test_df[feature_columns] = feature_scaler.transform(test_df[feature_columns])
+    train_scaled[feature_columns] = feature_scaler.transform(train_scaled[feature_columns])
+    val_scaled[feature_columns] = feature_scaler.transform(val_scaled[feature_columns])
+    test_scaled[feature_columns] = feature_scaler.transform(test_scaled[feature_columns])
 
-    return train_df, val_df, test_df, feature_scaler, target_scaler
+    return train_imputed, val_imputed, test_imputed, train_scaled, val_scaled, test_scaled, feature_scaler, target_scaler
