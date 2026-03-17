@@ -258,7 +258,8 @@ The final comparison focuses on three representative models:
 - **Ridge regression**
 - **LSTM**
 
-Ridge achieved the best overall performance on the test set, while the LSTM remained competitive but did not outperform the linear baseline.
+A **seasonal naive baseline** was also evaluated during experimentation.  
+However, its performance was consistently worse than the standard naive baseline and therefore it is not included in the final comparison plots.
 
 ### Test set performance
 
@@ -282,9 +283,79 @@ Ridge achieved the best overall performance on the test set, while the LSTM rema
 
 Several observations stand out from the results:
 
-- **Ridge regression performed best overall**, especially for short-term forecasts.
-- **LSTM remained competitive**, but did not surpass the linear baseline on the test set.
-- The gap between Ridge and LSTM was relatively small, suggesting that the dataset's temporal structure can already be captured well by a regularized linear model.
-- Forecasting error increases with the horizon for all models, which is expected in multi-step forecasting tasks.
+- **Ridge regression achieved the best overall performance**, particularly for short-term forecasts.
+- **The LSTM model remained competitive**, but did not outperform the linear baseline on the full test horizon.
+- The **performance gap between Ridge and LSTM is relatively small**, suggesting that the dataset's temporal dynamics can largely be captured by a regularized linear model.
+- **Forecasting error increases with the prediction horizon** for all models, which is typical in multi-step forecasting tasks.
+- While Ridge performs better for short horizons, the **LSTM becomes increasingly competitive for longer forecast horizons**, where capturing temporal dependencies may be more beneficial.
 
-Overall, the results show that **strong classical baselines are essential in time-series forecasting**, and that a more complex neural architecture does not automatically outperform simpler models.
+Overall, the results highlight the importance of **strong classical baselines in time-series forecasting**, as simpler models can remain highly competitive even when compared to neural networks.
+
+## How to Run
+
+Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/przemekwarnel/air-quality-forecasting.git
+cd air-quality-forecasting
+pip install -r requirements.txt
+```
+
+Run baseline models:
+
+```bash
+PYTHONPATH=src python -m air_quality_forecasting.run_baselines
+```
+
+Train the Ridge regression model:
+
+```bash
+PYTHONPATH=src python -m air_quality_forecasting.run_linear_model
+```
+
+Train the LSTM model:
+
+```bash
+PYTHONPATH=src python -m air_quality_forecasting.run_rnn \
+  --config configs/experiments/lstm_baseline.yaml
+``` 
+
+Generate comparison plots:
+```bash
+PYTHONPATH=src python -m air_quality_forecasting.generate_plots \
+  --lstm-experiment lstm_baseline
+```
+
+## Reproducing Experiments
+
+All experiments are controlled via configuration files located in:
+
+`configs`
+
+Example configurations include:
+
+- `configs/experiments/lstm_baseline.yaml`
+- `configs/experiments/lstm_dropout.yaml`
+- `configs/experiments/lstm_small_lr.yaml`
+
+Each configuration specifies:
+
+- model hyperparameters
+- training settings
+- dataset parameters
+
+Experiment results are automatically saved to:
+
+`reports/experiments`
+
+as JSON files containing evaluation metrics. 
+
+## Future Work
+
+Possible extensions of this project include:
+
+- testing additional neural architectures (e.g., GRU or Transformer-based models)
+- incorporating additional meteorological features
+- exploring probabilistic forecasting methods
+- performing systematic hyperparameter optimization
+- evaluating models on additional air quality datasets
