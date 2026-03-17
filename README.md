@@ -202,6 +202,11 @@ The project compares several forecasting approaches:
 
 Uses the most recent observation as the prediction for all future time steps.
 
+**Seasonal naive baseline**
+
+Uses the observation from the same hour in the previous daily cycle as the forecast.
+This baseline captures simple daily seasonality in the time series.
+
 **Ridge regression**
 
 A regularized linear regression model trained on flattened input windows.
@@ -217,7 +222,6 @@ Architecture:
 ```
 Input → LSTM → Dense → 24-step forecast
 ```
-
 
 Training uses:
 
@@ -245,3 +249,42 @@ Performance is reported:
 - for each individual forecast step
 
 This allows comparison of models across short- and long-term forecasts.
+
+## Results
+
+The final comparison focuses on three representative models:
+
+- **Naive baseline**
+- **Ridge regression**
+- **LSTM**
+
+Ridge achieved the best overall performance on the test set, while the LSTM remained competitive but did not outperform the linear baseline.
+
+### Test set performance
+
+| Model | MAE | RMSE | R² |
+|---|---:|---:|---:|
+| Naive | 50.67 | 85.37 | 0.32 |
+| Ridge | **46.16** | **71.88** | **0.515** |
+| LSTM | 46.79 | 73.77 | 0.489 |
+
+### Horizon-wise performance
+
+#### MAE per forecast horizon
+
+![MAE per horizon](reports/figures/mae_per_horizon.png)
+
+#### R² per forecast horizon
+
+![R² per horizon](reports/figures/r2_per_horizon.png)
+
+### Discussion
+
+Several observations stand out from the results:
+
+- **Ridge regression performed best overall**, especially for short-term forecasts.
+- **LSTM remained competitive**, but did not surpass the linear baseline on the test set.
+- The gap between Ridge and LSTM was relatively small, suggesting that the dataset's temporal structure can already be captured well by a regularized linear model.
+- Forecasting error increases with the horizon for all models, which is expected in multi-step forecasting tasks.
+
+Overall, the results show that **strong classical baselines are essential in time-series forecasting**, and that a more complex neural architecture does not automatically outperform simpler models.
