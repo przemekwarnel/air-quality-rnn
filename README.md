@@ -143,32 +143,6 @@ air-quality-forecasting
 └── requirements.txt
 ```
 
-### Key components
-
-**datasets.py**
-
-Creates train/validation/test splits and constructs sliding window datasets.
-
-**run_baselines.py**
-
-Runs naive forecasting baselines.
-
-**run_linear_model.py**
-
-Trains a Ridge regression model using lagged input windows.
-
-**run_rnn.py**
-
-Trains an LSTM model for multi-step forecasting.
-
-**evaluate.py**
-
-Computes evaluation metrics including MAE, RMSE and R² across forecast horizons.
-
-**visualization.py**
-
-Generates plots for forecast examples and horizon-wise model comparison.
-
 ## Methodology
 
 ### Data preprocessing
@@ -301,7 +275,7 @@ Several observations stand out from the results:
 
 Overall, the results highlight the importance of **strong classical baselines in time-series forecasting**, as simpler models can remain highly competitive even when compared to neural networks.
 
-## How to Run
+## Installation
 
 Clone the repository and install dependencies:
 
@@ -310,6 +284,8 @@ git clone https://github.com/przemekwarnel/air-quality-forecasting.git
 cd air-quality-forecasting
 pip install -r requirements.txt
 ```
+
+## How to Run
 
 Run baseline models:
 
